@@ -126,7 +126,7 @@ int main (void){
         printf("%c", temp);
 
     }
-
+    printf ("\nOSORTERAT\n");
     for (int i= 0; i<h->arrNumber; i++){
         printf("%c %d\n", (char)h->array[i][0], h->array[i][1]);
     }
