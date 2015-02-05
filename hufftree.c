@@ -102,8 +102,8 @@ huff_tree *huffTree_merge (huff_tree *treeLeft, huff_tree *treeRight){
     huffTree_setValues(newTree,NULL,sumData,r);
 
 
-    treeLeft->root=NULL;
-    treeRight->root=NULL;
+ //   treeLeft->root=NULL;
+  //  treeRight->root=NULL;
     return newTree;
 }
 
