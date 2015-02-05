@@ -67,7 +67,6 @@ huffTree_pos huffTree_insertRight(huff_tree *tree,huffTree_pos n) {
     huffTree_pos p=calloc(1,sizeof(node));
     p->parent =n;
     if (n->rightChild!=NULL)
-
         huffTree_deleteNode(tree,n->rightChild);
     n->rightChild=p;
     return p;
@@ -89,7 +88,6 @@ huff_tree *huffTree_merge (huff_tree *treeLeft, huff_tree *treeRight){
     newTree->root->rightChild=treeRight->root;
     treeRight->root->parent=newTree->root;
 
-
     data WeightLeftData, WeightRightData;
     huffTree_pos left = huffTree_root(treeLeft);
     huffTree_pos right = huffTree_root(treeRight);
@@ -102,8 +100,15 @@ huff_tree *huffTree_merge (huff_tree *treeLeft, huff_tree *treeRight){
     huffTree_setValues(newTree,NULL,sumData,r);
 
 
- //   treeLeft->root=NULL;
-  //  treeRight->root=NULL;
+//    treeLeft->root=NULL;
+//    treeRight->root=NULL;
+
+    free(treeLeft->root);
+    free(treeRight->root);
+//
+    free(treeLeft);
+    free(treeRight);
+
     return newTree;
 }
 
