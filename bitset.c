@@ -1,10 +1,10 @@
 /*
  * Copyright 2015 Johan Eliasson (johane@cs.umu.se). Tillåtelse ges för användning på kurserna
- * i Datastrukturer och algoritmer vid Umeå Universitet (inklusive DV1 och DV2). All annan användning kräver 
+ * i Datastrukturer och algoritmer vid Umeå Universitet (inklusive DV1 och DV2). All annan användning kräver
  * författarens tillstånd.
  */
 
-/* Datatypen svarar mot en mängd (lexikon) av bitar. Inga av de matematiska mängdoperationerna finns med 
+/* Datatypen svarar mot en mängd (lexikon) av bitar. Inga av de matematiska mängdoperationerna finns med
  * datatypen. Några extra operationer har lagts till för att datatypen ska bli lättare att använda */
 
 #include "bitset.h"
@@ -70,11 +70,30 @@ char *toByteArray(bitset *b) {
         res[i]=b->array[i];
     }
     return res;
-    
+
 }
 
 //Returns the size of this bitset
 int bitset_size(bitset *b) {
     return b->length;
 }
+
+
+bitset* bitsetFromFile(char *filename){
+    FILE *fp= fopen(filename,"r");
+    fseek(fp, 0L, SEEK_END);
+    int sz = ftell(fp);
+   // printf("Storlek på filen = %d byte\n", sz);
+    fclose(fp);
+    FILE *fpp = fopen(filename, "r");
+    bitset *b;
+    b=malloc(sizeof(bitset));
+    b->length=sz*8;
+    b->capacity=0;
+    b->array=malloc(sz*sizeof(char));
+    fread(b->array,sizeof(char),sz, fpp);
+  //  fgets(b->array,sz,fpp);
+    return b;
+}
+
 

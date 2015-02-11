@@ -122,7 +122,6 @@ Kommentarer:
 */
 bool huffTree_hasCharacter(huff_tree *tree,huffTree_pos n);
 bool huffTree_hasWeight(huff_tree *tree,huffTree_pos n);
-
 /*
 Syfte: Sätta en etikett för en nod
 Parametrar: tree - trädet

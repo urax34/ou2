@@ -9,12 +9,12 @@
 #define ARR_SIZE 256
 
 
-
+/*
 typedef struct HuffIntArrayTable {
     int array[ARR_SIZE][2];
     int arrNumber;
 
-} HuffIntArrayTable;
+} HuffIntArrayTable;*/
 
 
 typedef struct {
@@ -29,82 +29,72 @@ void exchange (int *x, int *y){
     *y=temp;
 }
 /*Help functiom for the treesort*/
-void siftup (int i, int n, HuffIntArrayTable *h){
+void siftup (int i, int n, int h[][2]){
     int j = (2 * i)+1;
-    int copyV = h->array[i][1];
-    int copyC = h->array[i][0];
+    int copyV = h[i][1];
+    int copyC = h[i][0];
     while (j <= n-1){
-        if (j<n-1 && h->array[j+1][1] > h->array[j][1]){
+        if (j<n-1 && h[j+1][1] > h[j][1]){
             j++;
         }
-        if (h->array[j][1]<copyV){
-            h->array[i][1]=copyV;
-            h->array[i][0]=copyC;
+        if (h[j][1]<copyV){
+            h[i][1]=copyV;
+            h[i][0]=copyC;
             break;
         }
-        h->array[i][1]=h->array[j][1];
-        h->array[i][0]=h->array[j][0];
+        h[i][1]=h[j][1];
+        h[i][0]=h[j][0];
         i = j;
-            h->array[i][1]=copyV;
-            h->array[i][0]=copyC;
+            h[i][1]=copyV;
+            h[i][0]=copyC;
         j=(2*i)+1;
     }
 
 }
 /*Sorts a HuffIntArrayTable by the number of times each char has appeared in a text,
     lowest first. */
-void treesortHuffArr(HuffIntArrayTable *h, int n){
+void treesortHuffArr(int h[][2], int n){
     int i;
     int x=1;
     int temp;
     for (i=(n-1)/2;i>0;i--){
-
         x++;
         siftup(i,n,h);
-
     }
     x=1;
 
     for (i=n;i>0;i--){
-
         x++;
         siftup(0,i,h);
-
-
-        temp = h->array[0][1];
-        h->array[0][1]=h->array[i-1][1];
-        h->array[i-1][1]=temp;
-
-        temp = h->array[0][0];
-        h->array[0][0]=h->array[i-1][0];
-        h->array[i-1][0]=temp;
+        temp = h[0][1];
+        h[0][1]=h[i-1][1];
+        h[i-1][1]=temp;
+        temp = h[0][0];
+        h[0][0]=h[i-1][0];
+        h[i-1][0]=temp;
     }
 
 }
 
-huff_tree *huffEncode (HuffIntArrayTable *harr){
-
-    const int size = harr->arrNumber;
+huff_tree *huffEncode (int harr[][2]){
+    //const int size = harr->arrNumber;
+    const int size = ARR_SIZE;
     huff_tree *huffArr[size];
     for (int i = 0; i<size; i++){
         huffArr[i] = huffTree_create();
-        huffArr[i]->root->character=(data)(intptr_t)harr->array[i][0];
-        huffArr[i]->root->weight=(data)(intptr_t)harr->array[i][1];
+        huffArr[i]->root->character=(data)(intptr_t)harr[i][0];
+        huffArr[i]->root->weight=(data)(intptr_t)harr[i][1];
     }
 
     int n = 1;
 
     while (n<size){
-
-
         huffArr[n]=huffTree_merge(huffArr[n], huffArr[n-1]);
-
         int t = n;
         int j = n+1;
-
         if (j<size){
 
-            while (j<size && (int)(intptr_t)huffArr[t]->root->weight >(int)(intptr_t)huffArr[j]->root->weight){
+            while (j<size && (int)(intptr_t)huffArr[t]->root->weight >= (int)(intptr_t)huffArr[j]->root->weight){
 
                 huff_tree *tempHuff;
 
@@ -118,7 +108,41 @@ huff_tree *huffEncode (HuffIntArrayTable *harr){
         }
         n++;
     }
+    /*Här skriver jag ut root-värdet, värdet på dom två första barnen och om det högra
+    barnet har barn så skrivs dom också ut*/
+/*
+            printf("\n\n Root %c %d ", (char)(intptr_t)huffArr[n-1]->root->character, (int)(intptr_t)huffArr[n-1]->root->weight);
 
+            huffTree_pos p = huffTree_root(huffArr[n-1]);
+            p = huffTree_leftChild(huffArr[n-1],p);
+            data testC = huffTree_inspectCharacter(huffArr[n-1],p);
+            data testw = huffTree_inspectWeight(huffArr[n-1],p);
+            printf("Left %c %d", (int)(intptr_t)testC, (int)(intptr_t)testw);
+
+            p = huffTree_root(huffArr[n-1]);
+            p = huffTree_rightChild(huffArr[n-1],p);
+            testC = huffTree_inspectCharacter(huffArr[n-1],p);
+            testw = huffTree_inspectWeight(huffArr[n-1],p);
+            printf("Right %c %d", (int)(intptr_t)testC, (int)(intptr_t)testw);
+            printf("\n\n Right Child \n");
+
+            if (huffTree_hasLeftChild(huffArr[n-1],p)){
+                p = huffTree_leftChild(huffArr[n-1],p);
+                data testC = huffTree_inspectCharacter(huffArr[n-1],p);
+                data testw = huffTree_inspectWeight(huffArr[n-1],p);
+                printf("Left %c %d", (int)(intptr_t)testC, (int)(intptr_t)testw);
+            }
+
+            p = huffTree_root(huffArr[n-1]);
+            p = huffTree_rightChild(huffArr[n-1],p);
+
+            if (huffTree_hasRightChild(huffArr[n-1],p)){
+                p = huffTree_rightChild(huffArr[n-1],p);
+                data testC = huffTree_inspectCharacter(huffArr[n-1],p);
+                data testw = huffTree_inspectWeight(huffArr[n-1],p);
+                printf("Right %c %d", (int)(intptr_t)testC, (int)(intptr_t)testw);
+            }
+    printf("\n\n");*/
     return huffArr[n-1];
 }
 
@@ -128,42 +152,41 @@ int compareInt(void *ip,void *ip2){
     return (*(int*)ip) - (*(int*)ip2);
 }
 
-void readTextToArray (HuffIntArrayTable *h, FILE *fp){
+void readTextToArray (int h[][2], FILE *fp){
     char temp;
 
-    while((temp = fgetc(fp)) != EOF){
-
+    for (int i = 0; i<=ARR_SIZE;i++){
+        h[i][0]=i;
+        h[i][1]=0;
+    }
+    unsigned int c;
+    temp = fgetc(fp);
+    //while((temp = fgetc(fp)) != EOF){
+    while( temp != EOF){
         if (ferror(fp)) {
             break;
         }
-        for (int i=0;i<ARR_SIZE;i++){
-            if (h->arrNumber==0){
-                h->array[0][0]=(int)temp;
-                h->array[0][1]=1;
-                h->arrNumber++;
-
-                break;
-            }
-            else if (h->array[i][0]==temp){
-                h->array[i][0]=(int)temp;
-                h->array[i][1]=h->array[i][1] + 1;
-
-
-                break;
-            }
-            else if (i==h->arrNumber){
-                h->array[i][0]=(int)temp;
-                h->array[i][1]= 1;
-                h->arrNumber++;
-
-                break;
-            }
-        }
+        c=(unsigned char)temp;// - '0';
+        int t = h[c][1];
+        h[c][1]=t+1;
+        temp = fgetc(fp);
     }
+    int slut = (int)'\4';
+    h[slut][0]=slut;
+    h[slut][1]=1;
 
-    h->array[h->arrNumber][0]=(int)'\4';
-    h->array[h->arrNumber][1]=1;
-    h->arrNumber++;
+
+
+    /*Ett enkelt hack för att inte huffTree_hasCharacter ska tappa det helt
+        för att det finns en bokstav som är NULL...*/
+   // h[0][0]=666;
+
+
+    //printf("\n\n BLIRE NÅ FREKVENS?\n");
+    //for (int i = 0; i<ARR_SIZE;i++){
+    //    printf("%c=%d   ", (char)h[i][0], h[i][1]);
+    //}
+
 }
 
 
@@ -177,14 +200,15 @@ void readTextToArray (HuffIntArrayTable *h, FILE *fp){
 */
 void treeToList(huff_tree *h, huffTree_pos p,bitset *b,dlist *l){
    // om karaktär påträffas så är vi i ett löv, då borde bitseten vara spikad och vi kan skriva till table.
-    if(huffTree_hasCharacter(h,p)){
+   // if(huffTree_hasCharacter(h,p)){
+    if(!huffTree_hasLeftChild(h,p) && !huffTree_hasRightChild(h,p)){
         // skapa en bytearray av vägen vandrad genom hufftree
         //bokstaven från hufftree
         char qq = (char)(intptr_t)huffTree_inspectCharacter(h,p);
         listElement *le = malloc(1*sizeof(listElement));
         le->character= qq;
         le->bit = b;
-     //   printf(" = %c och bytearray = %d\n", le->character, b->array);
+     //   printf(" = %c och bytearray = %d\n", le->character, b);
         //stoppa in pekare till bokstaven och pekare till bitset.
         dlist_insert(l,dlist_first(l),le);
         // ta bort barnlösa föräldrar som ledde till noden. Stanna vid root, tas den bort tappar åkallande funktion bort sig.
@@ -198,13 +222,13 @@ void treeToList(huff_tree *h, huffTree_pos p,bitset *b,dlist *l){
     else{
         //vi håller vänster genom trädet, så vänsterbarn hittas först.
         if(huffTree_hasLeftChild(h,p)) {
-     //       printf("0");
+       //     printf("0");
             p = huffTree_leftChild(h,p);
             bitset_setBitValue(b,bitset_size(b),false);
             treeToList(h,p,b,l);
         }
         else{
-     //       printf("1");
+         //   printf("1");
             p = huffTree_rightChild(h,p);
             bitset_setBitValue(b,bitset_size(b),true);
             treeToList(h,p,b,l);
@@ -286,7 +310,8 @@ void unzipFromFile(bitset *b, huff_tree *h, char *utfil) {
     int c;
     huffTree_pos p=huffTree_root(h);
     while(x<b->length) {
-        if(huffTree_hasCharacter(h,p)){
+        //if(huffTree_hasCharacter(h,p)){
+        if(!huffTree_hasLeftChild(h,p) && !huffTree_hasRightChild(h,p)){
             c=(int)(intptr_t)huffTree_inspectCharacter(h,p);
             if(c=='\4') {
                 x=b->length;
@@ -333,11 +358,22 @@ int main (int argc, char *argv[]){
         printf("no access to FILE0");
         exit(0);
     }
-    HuffIntArrayTable *h = calloc(1,sizeof(HuffIntArrayTable));
+    //HuffIntArrayTable *h = calloc(1,sizeof(HuffIntArrayTable));
+    //int h[ARR_SIZE][2] = malloc(ARR_SIZE * 2 * sizeof(int));
+    //int (*h)[2] = malloc(sizeof(*h)*ARR_SIZE);
+
+    //int (*h)[2] = calloc(sizeof(*h),ARR_SIZE);
+    int h[ARR_SIZE][2];// = calloc(sizeof(*h),ARR_SIZE);
     FILE *fp=fopen(argv[2],"r");
     readTextToArray(h,fp);
     fclose(fp);
-    treesortHuffArr(h,h->arrNumber);
+   // treesortHuffArr(h,h->arrNumber);
+    treesortHuffArr(h,ARR_SIZE);
+    /*printf("\n\n Sorteras det?\n");
+    for (int i = 0; i<ARR_SIZE;i++){
+        printf("%c=%d   ", (char)h[i][0], h[i][1]);
+    }*/
+
     huff_tree *huff = huffEncode(h);
     if(access(argv[3], F_OK) ==-1){
         printf("no access to FILE1");
@@ -369,7 +405,7 @@ int main (int argc, char *argv[]){
     }
     free(huff->root);
     free(huff);
-    free(h);
+    //free(h);
     return 0;
 
 }
