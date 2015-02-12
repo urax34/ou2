@@ -273,14 +273,23 @@ void listtozip(dlist *l, char *utfil, FILE *infil) {
    while(!dlist_isEnd(l,p)){
         e=dlist_inspect(l,p);
         p=dlist_next(l,p);
-        if(e->character=='\4'){
+        if(e->character==(int)'\4'){
             int lengd = bitset_size(e->bit);
     //        printf("matchad karaktär '%c' ::: bitlängd %d\n", e->character,lengd);
             for(int i=0;i<lengd;i++){
                 bitset_setBitValue(ut,x,bitset_memberOf(e->bit,i));
                 x++;
             }
+            //printf("\n%d\n\n", bitset_size(ut));
+            int rest=8 - bitset_size(ut)%8;
+            int tot = bitset_size(ut) + rest;
+
+            for (int n= bitset_size(ut); n<tot; n++){
+                bitset_setBitValue(ut,n,true);
+
+            }
             bitset_free(e->bit);
+            //printf("\n%d\n\n", bitset_size(ut));
             //free(e);
         }
         else{
@@ -289,10 +298,13 @@ void listtozip(dlist *l, char *utfil, FILE *infil) {
         }
    }
    char *bytearr = toByteArray(ut);
-  // printf(" komplett längd %d bitset, x = %d\n",bitset_size(ut) , x);
-    fwrite(bytearr,sizeof(char),ut->capacity/8,utfilen);
+
+    //printf("\n%d\n\n", bitset_size(ut));
+    //printf(" komplett längd %s bitset, x = %d\n", bytearr , ut->capacity/8);
+
+    fwrite(bytearr,sizeof(char),bitset_size(ut)/8,utfilen);
     //fprintf(utfilen, "%s" , bytearr);
-    printf("%d bytes used in encoded form.\n",bitset_size(ut)/8+1);
+    printf("%d bytes used in encoded form.\n",bitset_size(ut)/8);
     fclose(utfilen);
     free(bytearr);
     bitset_free(ut);
@@ -313,7 +325,8 @@ void unzipFromFile(bitset *b, huff_tree *h, char *utfil) {
         //if(huffTree_hasCharacter(h,p)){
         if(!huffTree_hasLeftChild(h,p) && !huffTree_hasRightChild(h,p)){
             c=(int)(intptr_t)huffTree_inspectCharacter(h,p);
-            if(c=='\4') {
+          //  printf("\n %d %c\n", c,c);
+            if(c==(int)'\4') {
                 x=b->length;
                printf("File decoded succesfully.\n");
                 }
@@ -336,6 +349,7 @@ void unzipFromFile(bitset *b, huff_tree *h, char *utfil) {
             }
         }
     }
+    fclose(fp);
 }
 
 int main (int argc, char *argv[]){
@@ -397,14 +411,21 @@ int main (int argc, char *argv[]){
         fclose(fp1);
         dlist_free(l);
         //free(l);
+
+        free(huff->root);
+        free(huff);
     }
     else {
        bitset *b=bitsetFromFile(argv[3]);
        unzipFromFile(b,huff,argv[4]);
         bitset_free(b);
+        huffTree_free(huff);
+        //fclose(fp);
     }
+    /*
     free(huff->root);
     free(huff);
+    */
     //free(h);
     return 0;
 

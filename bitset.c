@@ -92,6 +92,7 @@ bitset* bitsetFromFile(char *filename){
     b->capacity=0;
     b->array=malloc(sz*sizeof(char));
     fread(b->array,sizeof(char),sz, fpp);
+    fclose(fpp);
   //  fgets(b->array,sz,fpp);
     return b;
 }
