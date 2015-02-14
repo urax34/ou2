@@ -76,7 +76,7 @@ void treesortHuffArr(int h[][2], int n){
 
 }
 
-huff_tree *huffEncode (int harr[][2]){
+huff_tree *buildHuffTree (int harr[][2]){
     //const int size = harr->arrNumber;
     const int size = ARR_SIZE;
     huff_tree *huffArr[size];
@@ -388,7 +388,7 @@ int main (int argc, char *argv[]){
         printf("%c=%d   ", (char)h[i][0], h[i][1]);
     }*/
 
-    huff_tree *huff = huffEncode(h);
+    huff_tree *huff = buildHuffTree(h);
     free(h);
     if(access(argv[3], F_OK) ==-1){
         printf("no access to FILE1");
