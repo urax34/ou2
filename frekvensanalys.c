@@ -155,7 +155,7 @@ int compareInt(void *ip,void *ip2){
 void readTextToArray (int h[][2], FILE *fp){
     char temp;
 
-    for (int i = 0; i<=ARR_SIZE;i++){
+    for (int i = 0; i<ARR_SIZE;i++){
         h[i][0]=i;
         h[i][1]=0;
     }
@@ -372,12 +372,12 @@ int main (int argc, char *argv[]){
         printf("no access to FILE0");
         exit(0);
     }
-    //HuffIntArrayTable *h = calloc(1,sizeof(HuffIntArrayTable));
-    //int h[ARR_SIZE][2] = malloc(ARR_SIZE * 2 * sizeof(int));
-    //int (*h)[2] = malloc(sizeof(*h)*ARR_SIZE);
 
-    //int (*h)[2] = calloc(sizeof(*h),ARR_SIZE);
-    int h[ARR_SIZE][2];// = calloc(sizeof(*h),ARR_SIZE);
+
+    int (*h)[2] = malloc(sizeof(int*)*ARR_SIZE);
+
+
+
     FILE *fp=fopen(argv[2],"r");
     readTextToArray(h,fp);
     fclose(fp);
@@ -389,6 +389,7 @@ int main (int argc, char *argv[]){
     }*/
 
     huff_tree *huff = huffEncode(h);
+    free(h);
     if(access(argv[3], F_OK) ==-1){
         printf("no access to FILE1");
         exit(0);
