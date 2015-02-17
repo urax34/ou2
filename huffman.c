@@ -222,17 +222,26 @@ void unzipFromFile(bitset *b, huff_tree *h, char *utfil) {
     int x=0;
     int c;
     huffTree_pos p=huffTree_root(h);
+    int correctLength=0;
     while(x<b->length) {
-        if(!huffTree_hasLeftChild(h,p) && !huffTree_hasRightChild(h,p)){
+        if(!huffTree_hasLeftChild(h,p) && !huffTree_hasRightChild(h,p)) {
             c=(int)(intptr_t)huffTree_inspectCharacter(h,p);
             if(c==(int)'\4') {
-                x=b->length;
-                printf("File decoded succesfully.\n");
+                if(x+7< b->length){
+                    printf("incorrect frequency analysis file OR uncorrect encrypted file\n");
+                    exit(0);
                 }
+                else{
+                    printf("File decoded succesfully.\n");
+                    correctLength=1;
+                    x=b->length;
+                }
+            }
             else {
                 fputc(c,fp);
                 p=huffTree_root(h);
             }
+
         }
         else {
             bool boul = bitset_memberOf(b,x);
@@ -245,27 +254,43 @@ void unzipFromFile(bitset *b, huff_tree *h, char *utfil) {
             }
         }
     }
+    if(correctLength!=1) {
+        printf("incorrect frequency analysis file OR uncorrect encrypted file\n");
+        exit(0);
+    }
     fclose(fp);
 }
 
-int main (int argc, char *argv[]){
-    int ziporunzip=0;
-    if(argc!= 5){
-        printf("USAGE:\nhuffman [OPTION] [FILE0] [FILE1] [FILE2]\n Options:\n-encode encodes FILE1 according to frequence analysis done on FILE0."        " Stores the result in FILE2\n-decode decodes FILE1 according to frequence analysis done on FILE0. Stores the result in FILE2\n");
+void printUsage() {
+    printf("USAGE:\nhuffman [OPTION] [FILE0] [FILE1] [FILE2]\n Options:\n"
+           "-encode encodes FILE1 according to frequence analysis done on FILE0."
+           " Stores the result in FILE2\n-decode decodes FILE1 according to"
+           " frequence analysis done on FILE0. Stores the result in FILE2\n");
+}
+
+
+int main (int argc, char *argv[]) {
+    bool ziporunzip=true;
+    if(argc!= 5) {
+        printUsage();
         exit(0);
     }
-    if(strncmp(argv[1],"-encode",7)==0){
-        ziporunzip=0;
+    if(strncmp(argv[1],"-encode",7)==0) {
+        ziporunzip=true;
     }
-    else if(strncmp(argv[1],"-decode",7)==0){
-        ziporunzip=1;
+    else if(strncmp(argv[1],"-decode",7)==0) {
+        ziporunzip=false;
     }
-    else{
-        printf("USAGE:\nhuffman [OPTION] [FILE0] [FILE1] [FILE2]\n Options:\n-encode encodes FILE1 according to frequence analysis done on FILE0."        " Stores the result in FILE2\n-decode decodes FILE1 according to frequence analysis done on FILE0. Stores the result in FILE2\n");
+    else {
+        printUsage();
         exit(0);
     }
-    if(access(argv[2], F_OK) ==-1){
+    if(access(argv[2], F_OK) ==-1) {
         printf("no access to FILE0");
+        exit(0);
+    }
+    if(access(argv[3], F_OK) ==-1) {
+        printf("no access to FILE1");
         exit(0);
     }
     FILE *fp=fopen(argv[2],"r");
@@ -279,7 +304,7 @@ int main (int argc, char *argv[]){
         printf("no access to FILE1");
         exit(0);
     }
-    if(ziporunzip==0) {
+    if(ziporunzip) {
         FILE *fp0 = fopen(argv[3],"r");
         fseek(fp0, 0L, SEEK_END);
         int fp0size = ftell(fp0);
