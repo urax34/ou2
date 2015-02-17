@@ -151,6 +151,7 @@ huffTree_pos huffTree_insertLeft(huff_tree *tree,huffTree_pos n);
 
 
 huff_tree *huffTree_merge (huff_tree *treeLeft, huff_tree *treeRight);
+huff_tree *buildHuffTree (int harr[][2], const int size);
 /*
 Syfte: Ta bort en nod ur trädet
 Parametrar: tree - trädet
