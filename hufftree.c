@@ -81,12 +81,10 @@ huffTree_pos huffTree_insertLeft(huff_tree *tree,huffTree_pos n) {
 }
 huff_tree *huffTree_merge (huff_tree *treeLeft, huff_tree *treeRight){
     huff_tree *newTree=huffTree_create();
-
     newTree->root->leftChild=treeLeft->root;
     treeLeft->root->parent=newTree->root;
     newTree->root->rightChild=treeRight->root;
     treeRight->root->parent=newTree->root;
-
     data WeightLeftData, WeightRightData;
     huffTree_pos left = huffTree_root(treeLeft);
     huffTree_pos right = huffTree_root(treeRight);
@@ -95,28 +93,22 @@ huff_tree *huffTree_merge (huff_tree *treeLeft, huff_tree *treeRight){
     huffTree_pos r=huffTree_root(newTree);
     int sum = (int)(intptr_t)WeightLeftData+(int)(intptr_t)WeightRightData;
     data sumData = (data)(intptr_t)sum;
-
     huffTree_setValues(newTree,NULL,sumData,r);
-
-
     treeLeft->root=NULL;
     treeRight->root=NULL;
     free(treeLeft);
     free(treeRight);
-
     return newTree;
 }
 
-huff_tree *buildHuffTree (int harr[][2], const int size){
+huff_tree *buildHuffTree (int **harr, const int size){
        huff_tree *huffArr[size];
     for (int i = 0; i<size; i++){
         huffArr[i] = huffTree_create();
         huffArr[i]->root->character=(data)(intptr_t)harr[i][0];
         huffArr[i]->root->weight=(data)(intptr_t)harr[i][1];
     }
-
     int n = 1;
-
     while (n<size){
         huffArr[n]=huffTree_merge(huffArr[n], huffArr[n-1]);
         int t = n;
@@ -161,11 +153,6 @@ huffTree_pos huffTree_deleteNode(huff_tree *tree,huffTree_pos n) {
     free(n);
     return parent;
 }
-
-
-
-
-
 
 void huffTree_free(huff_tree *tree) {
     if( huffTree_hasLeftChild(tree,tree->root))

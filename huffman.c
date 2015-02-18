@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "hufftree.h"
-#include "dlist.h"
 #include "bitset.h"
 #include <string.h>
 #include <unistd.h>
@@ -20,7 +19,7 @@ void exchange (int *x, int *y){
     *y=temp;
 }
 /*Hjälpfunktion för treesort*/
-void siftup (int i, int n, int h[][2]){
+void siftup (int i, int n, int **h){
     int j = (2 * i)+1;
     int copyV = h[i][1];
     int copyC = h[i][0];
@@ -48,7 +47,7 @@ void siftup (int i, int n, int h[][2]){
     Input   - 2d array där andra dimensionen är 2.
             - Antal platser i första dimensionen
 */
-void treesortHuffArr(int h[][2], int n){
+void treesortHuffArr(int **h, int n){
     int i;
     int x=1;
     int temp;
@@ -75,7 +74,7 @@ void treesortHuffArr(int h[][2], int n){
     Input   - 2d array där andra dimensionen är 2.
             - En textfil.
 */
-void readTextToArray (int h[][2], FILE *fp, const int size){
+void readTextToArray (int **h, FILE *fp, const int size){
     char temp;
     for (int i = 0; i<size;i++){
         h[i][0]=i;
@@ -98,126 +97,104 @@ void readTextToArray (int h[][2], FILE *fp, const int size){
     h[slut][1]=1;
 }
 
-
 /*
     Tar in en pekare till en tom bitset. För varje iteration av treetotable
     blir bitset 1 bit längre, dessa bitar beskriver vägen igenom trädet för
     att återfinna karaktären.
-    Då hufftree hittar en bokstav i positionen efter rekursion så läggs bokstaven
-    tillsammans med bitset in i tabellen. bokstaven är key, och bitset är value.
-    Minnesallokeringen är inte solklar. Helt klart minnesläckor i detta!
+    Då hufftree hittar en bokstav i positionen vi stegat till används
+    bokstaven som en unsigned char, den anger positionen i arrayen l som
+    ska peka på den skapade bitseten.
+    input= hufftree pekare, hufftreeposition, bitsetpekare och voidpekar-
+    array.
+    output= inget.
+
 */
-void treeToList(huff_tree *h, huffTree_pos p,bitset *b,dlist *l){
-   // om karaktär påträffas så är vi i ett löv, då borde bitseten vara spikad och vi kan skriva till table.
-
+void treeToArray(huff_tree *h, huffTree_pos p,bitset *b,void *l[]){
     if(!huffTree_hasLeftChild(h,p) && !huffTree_hasRightChild(h,p)){
-        // skapa en bytearray av vägen vandrad genom hufftree
-        //bokstaven från hufftree
         char qq = (char)(intptr_t)huffTree_inspectCharacter(h,p);
-        listElement *le = malloc(1*sizeof(listElement));
-        le->character= qq;
-        le->bit = b;
-
-        //stoppa in pekare till bokstaven och pekare till bitset.
-        dlist_insert(l,dlist_first(l),le);
-        // ta bort barnlösa föräldrar som ledde till noden. Stanna vid root, tas den bort tappar åkallande funktion bort sig.
+        l[(unsigned char)qq]=b;
         p = huffTree_deleteNode(h,p);
-        while(!huffTree_hasRightChild(h,p) && !huffTree_hasLeftChild(h,p) && p!=h->root){
+        while(!huffTree_hasRightChild(h,p) && !huffTree_hasLeftChild(h,p) && p!=h->root) {
             p = huffTree_deleteNode(h,p);
         }
     }
-        // om ingen bokstav påträffas är vi i en transportsträcka, kalla rekursivt barn till noden, och
-        //skriv vägen till bitset.
-    else{
-        //vi håller vänster genom trädet, så vänsterbarn hittas först.
+    else {
         if(huffTree_hasLeftChild(h,p)) {
-
             p = huffTree_leftChild(h,p);
             bitset_setBitValue(b,bitset_size(b),false);
-            treeToList(h,p,b,l);
+            treeToArray(h,p,b,l);
         }
-        else{
-
+        else {
             p = huffTree_rightChild(h,p);
             bitset_setBitValue(b,bitset_size(b),true);
-            treeToList(h,p,b,l);
+            treeToArray(h,p,b,l);
         }
     }
 }
 /*
-    Här får vi en pekare till en öppnad fil, vi går igenom karaktär för karaktär
-    och stegar igenom listan för att återfinna karaktären. Sedan lägger vi till
-    karaktärens bitvärde som skapades i treeToList, och lägger till det till
-    det till 'bitset ut' som kommer att skrivas till utfilen.
-    Avslutar med att leta upp EOT-tecknet, '\4', och passar på att avallokera
-    alla bitsets från listan *l.
-    Sist skrivs bitset ut till filen med fprintf.
+    Denna funktion går igenom infilen karaktär för karaktär. Lägger till
+    varje karaktärs bitvärde som skapades i treeToArray till 'bitset *ut'.
+    Skapar en char * av 'ut', och skriver den till fil.
+    input= void *[] som innehåller bitsetpekare, filnamnspekare till infil
+    & utfil.
+    output= inget.
 */
-
-void listtozip(dlist *l, char *utfil, FILE *infil) {
-    char temp;
+void encodeText(void *l[], char *utfil, char *infil) {
+     FILE *fp0 = fopen(infil,"r");
+    fseek(fp0, 0L, SEEK_END);
+    int fp0size = ftell(fp0);
+    fclose(fp0);
+    printf("%d bytes read from %s.\n", fp0size,infil);
+    unsigned char temp;
     bitset *ut= bitset_empty();
     unsigned long x=0;
     FILE *utfilen = fopen(utfil, "w");
-    while((temp = fgetc(infil)) != EOF){
-        int stopp=0;
-        listElement *e;
-        dlist_position p = dlist_first(l);
-        while(!dlist_isEnd(l,p) && stopp==0){
-            e=dlist_inspect(l,p);
-            p=dlist_next(l,p);
-            if(e->character==temp){
-                int lengd = bitset_size(e->bit);
-
-                for(int i=0;i<lengd;i++){
-                    bitset_setBitValue(ut,x,bitset_memberOf(e->bit,i));
-                    x++;
-                }
-                stopp=1;
-            }
+    FILE *infilen = fopen(infil, "r");
+    int cntr=0;
+    while( cntr < fp0size ){
+        temp = fgetc(infilen);
+        cntr++;
+        int lengd = bitset_size(l[temp]);
+        for(int i=0;i<lengd;i++){
+            bitset_setBitValue(ut,x,bitset_memberOf(l[temp],i));
+            x++;
+        }
+        if(temp==(int)'\4') {
+            printf("EOT-character within the textfile.\n");
+            exit(0);
         }
     }
-    dlist_position p=dlist_first(l);
-    listElement *e;
-    while(!dlist_isEnd(l,p)){
-        e=dlist_inspect(l,p);
-        p=dlist_next(l,p);
-        if(e->character==(int)'\4'){
-            int lengd = bitset_size(e->bit);
-
-            for(int i=0;i<lengd;i++){
-                bitset_setBitValue(ut,x,bitset_memberOf(e->bit,i));
+    int lengd = bitset_size(l[(int)'\4']);
+    for(int i=0;i<lengd;i++){
+                bitset_setBitValue(ut,x,bitset_memberOf(l[(int)'\4'],i));
                 x++;
             }
-
             int rest=8 - bitset_size(ut)%8;
             int tot = bitset_size(ut) + rest;
-
             for (int n= bitset_size(ut); n<tot; n++){
                 bitset_setBitValue(ut,n,true);
-
             }
-            bitset_free(e->bit);
-        }
-        else{
-            bitset_free(e->bit);
-        }
-    }
     char *bytearr = toByteArray(ut);
     fwrite(bytearr,sizeof(char),bitset_size(ut)/8,utfilen);
     printf("%d bytes used in encoded form.\n",bitset_size(ut)/8);
     fclose(utfilen);
+    fclose(infilen);
     free(bytearr);
     bitset_free(ut);
+    for(int i=0;i<ARR_SIZE;i++){
+        bitset_free(l[i]);
+    }
 }
 
 /*
-    Här stegar vi igenom bitset b som innehåller en hel komprimerad fil,
-    och för varje steg tar vi motsvarande steg i trien. När vi nått ett löv
-    så läser vi värdet och skriver till fil. Sedan går vi tillbaka till roten
-    och fortsätter.
+    DecodeText stegar igenom bitset som innehåller en hel komprimerad fil.
+    För varje bit ur bitset tas motsvarande steg i huffmanträdet. När ett
+    löv är funnet så läses värdet och skrivs till fil. Sedan sätts pekaren
+    tillbaka på Huffmanträdets rot och börjar på nästa karaktär.
+    input = bitset-pekare, hufftree-pekare, filnamns-pekare.
+    Returnerar inget.
 */
-void unzipFromFile(bitset *b, huff_tree *h, char *utfil) {
+void decodeText(bitset *b, huff_tree *h, char *utfil) {
     FILE *fp = fopen(utfil, "w");
     int x=0;
     int c;
@@ -227,11 +204,11 @@ void unzipFromFile(bitset *b, huff_tree *h, char *utfil) {
         if(!huffTree_hasLeftChild(h,p) && !huffTree_hasRightChild(h,p)) {
             c=(int)(intptr_t)huffTree_inspectCharacter(h,p);
             if(c==(int)'\4') {
-                if(x+7< b->length){
-                    printf("incorrect frequency analysis file OR uncorrect encrypted file\n");
+                if(x+8< b->length) {
+                    printf("incorrect frequency analysis file or incorrect encrypted file.\n");
                     exit(0);
                 }
-                else{
+                else {
                     printf("File decoded succesfully.\n");
                     correctLength=1;
                     x=b->length;
@@ -241,7 +218,6 @@ void unzipFromFile(bitset *b, huff_tree *h, char *utfil) {
                 fputc(c,fp);
                 p=huffTree_root(h);
             }
-
         }
         else {
             bool boul = bitset_memberOf(b,x);
@@ -255,19 +231,21 @@ void unzipFromFile(bitset *b, huff_tree *h, char *utfil) {
         }
     }
     if(correctLength!=1) {
-        printf("incorrect frequency analysis file OR uncorrect encrypted file\n");
+        printf("incorrect frequency analysis file or incorrect encrypted file.\n");
         exit(0);
     }
     fclose(fp);
 }
 
+/*
+    Hjälpfunktion för att hålla main ren och liten.
+*/
 void printUsage() {
     printf("USAGE:\nhuffman [OPTION] [FILE0] [FILE1] [FILE2]\n Options:\n"
-           "-encode encodes FILE1 according to frequence analysis done on FILE0."
-           " Stores the result in FILE2\n-decode decodes FILE1 according to"
-           " frequence analysis done on FILE0. Stores the result in FILE2\n");
+    "-encode encodes FILE1 according to frequence analysis done on FILE0."
+    " Stores the result in FILE2\n-decode decodes FILE1 according to"
+    " frequence analysis done on FILE0. Stores the result in FILE2\n");
 }
-
 
 int main (int argc, char *argv[]) {
     bool ziporunzip=true;
@@ -294,41 +272,40 @@ int main (int argc, char *argv[]) {
         exit(0);
     }
     FILE *fp=fopen(argv[2],"r");
-    int (*h)[2] = malloc(sizeof(int*)*ARR_SIZE);
+  //  int (*h)[2] = malloc(sizeof(int*)*ARR_SIZE);
+   // int **h;
+   int **h=(int**)malloc(sizeof(int*)*ARR_SIZE);
+    for(int i=0;i<ARR_SIZE;i++){
+        h[i] = (int*)malloc(sizeof(int)*2);
+    }
     readTextToArray(h,fp,ARR_SIZE);
     fclose(fp);
     treesortHuffArr(h,ARR_SIZE);
     huff_tree *huff = buildHuffTree(h,ARR_SIZE);
+    for(int j=0;j<ARR_SIZE;j++) {
+        free(h[j]);
+    }
     free(h);
     if(access(argv[3], F_OK) ==-1){
         printf("no access to FILE1");
         exit(0);
     }
     if(ziporunzip) {
-        FILE *fp0 = fopen(argv[3],"r");
-        fseek(fp0, 0L, SEEK_END);
-        int fp0size = ftell(fp0);
-        fclose(fp0);
-        printf("%d bytes read from %s.\n", fp0size,argv[3]);
         huffTree_pos pos= huffTree_root(huff);
-        dlist *l = dlist_empty();
-        dlist_setMemHandler(l,free);
+        void  *l= malloc(sizeof(void*)*ARR_SIZE);
         while(huffTree_hasRightChild(huff,pos)){
             bitset *b = bitset_empty();
-            treeToList(huff,pos,b,l);
+            treeToArray(huff,pos,b,l);
         }
-        FILE *fp1= fopen(argv[3], "r");
-        listtozip(l,argv[4], fp1);
-        fclose(fp1);
-        dlist_free(l);
+        encodeText(l,argv[4], argv[3]);
         huffTree_free(huff);
+        free(l);
     }
     else {
         bitset *b=bitsetFromFile(argv[3]);
-        unzipFromFile(b,huff,argv[4]);
+        decodeText(b,huff,argv[4]);
         bitset_free(b);
         huffTree_free(huff);
-
     }
     return 0;
 }
