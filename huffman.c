@@ -298,7 +298,7 @@ int main (int argc, char *argv[]) {
     readTextToArray(h,argv[2],ARR_SIZE);
     treesort2dArr(h,ARR_SIZE);
     huff_tree **huffArr=buildForest(h,ARR_SIZE);
-    huff_tree *huff = buildHuffTree(huffArr,ARR_SIZE);
+    huff_tree *huff = huffTree_build(huffArr,ARR_SIZE);
     free(huffArr);
     for(int j=0;j<ARR_SIZE;j++) {
         free(h[j]);

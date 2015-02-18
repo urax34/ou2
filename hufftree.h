@@ -184,12 +184,12 @@ Syfte:  Att bygga ett huffmanträd från en array med pekare till träd beståen
         returneras.
 
 Parametrar: harr - array med pekare till huffmanträd
-            size - antalet träd som harr pekar på
+            arraySize - antalet träd som harr pekar på
 Returvärde: Det resulterande huffmanträdet
 Kommentarer: Träden i arrayen måste vara sorterad med minsta vikt först
 */
 
-huff_tree *buildHuffTree (huff_tree **harr, const int size);
+huff_tree *huffTree_build (huff_tree **harr, const int arraySize);
 
 /*
 Syfte: Ta bort en nod ur trädet
