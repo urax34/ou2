@@ -92,10 +92,13 @@ huff_tree  **buildForest(int **arr,const int size){
 }
 /*  Läser in text från en fil och kollar för varje bokstav i en frekvenstabell,
     gjord av en 2d array, så att den finns där och ökar dess frekevens med 1.
-    Input   - 2d array av pekare till pekare. Andra dimensionen ska vara 2.
-            - En textfil.
+    Input   -   2d array av pekare till pekare. Andra dimensionen ska vara 2.
+            -   Namnet på filen som ska läsas in.
+            -   storleken på första dimensionen i arrayen
+                (antalet nycklar i tabellen)
 */
-void readTextToArray (int **h, FILE *fp, const int size){
+void readTextToArray (int **h, char *frekvensFil, const int size){
+    FILE *fp=fopen(frekvensFil,"r");
     char temp;
     for (int i = 0; i<size;i++){
         h[i][0]=i;
@@ -117,6 +120,8 @@ void readTextToArray (int **h, FILE *fp, const int size){
     int slut = (int)'\4';
     h[slut][0]=slut;
     h[slut][1]=1;
+
+    fclose(fp);
 }
 
 /*
@@ -296,20 +301,13 @@ int main (int argc, char *argv[]) {
         printf("no access to FILE1");
         exit(0);
     }
-    FILE *fp=fopen(argv[2],"r");
-  //  int (*h)[2] = malloc(sizeof(int*)*ARR_SIZE);
-   // int **h;
-   int **h=(int**)malloc(sizeof(int*)*ARR_SIZE);
+
+    int **h=(int**)malloc(sizeof(int*)*ARR_SIZE);
     for(int i=0;i<ARR_SIZE;i++){
         h[i] = (int*)malloc(sizeof(int)*2);
     }
- //   readTextToArray(h,fp,ARR_SIZE);
-    readTextToArray(h,fp,ARR_SIZE);
- //   fclose(fp);
-    fclose(fp);
+    readTextToArray(h,argv[2],ARR_SIZE);
     treesortHuffArr(h,ARR_SIZE);
-
-    //huff_tree **huffArr=malloc(ARR_SIZE*sizeof(huff_tree*));
     huff_tree **huffArr=buildForest(h,ARR_SIZE);
     huff_tree *huff = buildHuffTree(huffArr,ARR_SIZE);
     free(huffArr);
