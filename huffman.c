@@ -41,10 +41,10 @@ void siftup (int i, int n, int **h){
     }
 
 }
-/*  Använder en treesort-algoritm för att sortera en tabell implementerad med hjälp
-    av en 2d-array, där h[][0] = nyckeln (ett ascii-tecken) och h[][[1] är frekvensen som vi sorterar efter.
-    Minsta värdet placeras först.
-    Input   - 2d array där andra dimensionen är 2.
+/*  Använder en treesort-algoritm för att sortera en tabell implementerad med
+    hjälp av en 2d-array, där h[][0] = nyckeln (ett ascii-tecken) och h[][1]
+    är frekvensen som vi sorterar efter. Minsta värdet placeras först.
+    Input   - 2d array gjord av pekare till pekare där andra dimensionen är 2.
             - Antal platser i första dimensionen
 */
 void treesortHuffArr(int **h, int n){
@@ -69,9 +69,30 @@ void treesortHuffArr(int **h, int n){
     }
 
 }
-/*  Läser in text från en fil och kollar för varje bokstav i en frekvenstabell, gjord av en 2d array,
-    så att den finns där och ökar dess frekevens med 1.
-    Input   - 2d array där andra dimensionen är 2.
+
+/*  Tar en tabell implementerad med en 2d array och gör en array av rötter till
+    träd, där värdena i arr[][0] sätts in i rötternas character och
+    värdena i arr[][1] sätts i i rötternas weight.
+    Input   -   arr, 2d array gjord med pekare till pekare. Andra dimensionen
+                måste vara 2.
+            -   size, storleken på första dimensionen i arrayen.
+    Output  -   Array med pekare till träd bestående av en rot.
+*/
+
+huff_tree  **buildForest(int **arr,const int size){
+    huff_tree **huffArr=malloc(size*sizeof(huff_tree*));
+
+    for (int i = 0; i<size; i++){
+        huffArr[i] = huffTree_create();
+        huffTree_pos p = huffTree_root(huffArr[i]);
+        huffTree_setValues(huffArr[i],(data)(intptr_t)arr[i][0],
+        (data)(intptr_t)arr[i][1],p);
+    }
+    return huffArr;
+}
+/*  Läser in text från en fil och kollar för varje bokstav i en frekvenstabell,
+    gjord av en 2d array, så att den finns där och ökar dess frekevens med 1.
+    Input   - 2d array av pekare till pekare. Andra dimensionen ska vara 2.
             - En textfil.
 */
 void readTextToArray (int **h, FILE *fp, const int size){
@@ -91,7 +112,8 @@ void readTextToArray (int **h, FILE *fp, const int size){
         h[c][1]=t+1;
         temp = fgetc(fp);
     }
-    /*Sist av allt så ser vi till så att EOT finns med en gång eftersom vi kommer skriva in det sist i utfilen*/
+    /*Sist av allt så ser vi till så att EOT finns med en gång eftersom vi
+    kommer skriva in det sist i utfilen*/
     int slut = (int)'\4';
     h[slut][0]=slut;
     h[slut][1]=1;
@@ -114,7 +136,8 @@ void treeToArray(huff_tree *h, huffTree_pos p,bitset *b,void *l[]){
         char qq = (char)(intptr_t)huffTree_inspectCharacter(h,p);
         l[(unsigned char)qq]=b;
         p = huffTree_deleteNode(h,p);
-        while(!huffTree_hasRightChild(h,p) && !huffTree_hasLeftChild(h,p) && p!=h->root) {
+        while(!huffTree_hasRightChild(h,p) && !huffTree_hasLeftChild(h,p)
+              && p!=h->root) {
             p = huffTree_deleteNode(h,p);
         }
     }
@@ -205,7 +228,8 @@ void decodeText(bitset *b, huff_tree *h, char *utfil) {
             c=(int)(intptr_t)huffTree_inspectCharacter(h,p);
             if(c==(int)'\4') {
                 if(x+8< b->length) {
-                    printf("incorrect frequency analysis file or incorrect encrypted file.\n");
+                    printf("incorrect frequency analysis ");
+                    printf("file or incorrect encrypted file.\n");
                     exit(0);
                 }
                 else {
@@ -231,7 +255,8 @@ void decodeText(bitset *b, huff_tree *h, char *utfil) {
         }
     }
     if(correctLength!=1) {
-        printf("incorrect frequency analysis file or incorrect encrypted file.\n");
+        printf("incorrect frequency analysis file or ");
+        printf("incorrect encrypted file.\n");
         exit(0);
     }
     fclose(fp);
@@ -248,16 +273,16 @@ void printUsage() {
 }
 
 int main (int argc, char *argv[]) {
-    bool ziporunzip=true;
+    bool encodeOrDecode=true;
     if(argc!= 5) {
         printUsage();
         exit(0);
     }
     if(strncmp(argv[1],"-encode",7)==0) {
-        ziporunzip=true;
+        encodeOrDecode=true;
     }
     else if(strncmp(argv[1],"-decode",7)==0) {
-        ziporunzip=false;
+        encodeOrDecode=false;
     }
     else {
         printUsage();
@@ -278,10 +303,16 @@ int main (int argc, char *argv[]) {
     for(int i=0;i<ARR_SIZE;i++){
         h[i] = (int*)malloc(sizeof(int)*2);
     }
+ //   readTextToArray(h,fp,ARR_SIZE);
     readTextToArray(h,fp,ARR_SIZE);
+ //   fclose(fp);
     fclose(fp);
     treesortHuffArr(h,ARR_SIZE);
-    huff_tree *huff = buildHuffTree(h,ARR_SIZE);
+
+    //huff_tree **huffArr=malloc(ARR_SIZE*sizeof(huff_tree*));
+    huff_tree **huffArr=buildForest(h,ARR_SIZE);
+    huff_tree *huff = buildHuffTree(huffArr,ARR_SIZE);
+    free(huffArr);
     for(int j=0;j<ARR_SIZE;j++) {
         free(h[j]);
     }
@@ -290,7 +321,7 @@ int main (int argc, char *argv[]) {
         printf("no access to FILE1");
         exit(0);
     }
-    if(ziporunzip) {
+    if(encodeOrDecode) {
         huffTree_pos pos= huffTree_root(huff);
         void  *l= malloc(sizeof(void*)*ARR_SIZE);
         while(huffTree_hasRightChild(huff,pos)){

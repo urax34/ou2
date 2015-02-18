@@ -5,14 +5,16 @@ Användare:   dv14sbg
 Datum:       16 feb 2015
 
 Denna datatyp är ett huffmanträd som består av ett modifierat binärt träd.
-Det binära trädet är ursprungligen skrivet att av Johan Eliasson <johane@cs.umu.se>
-och är fritt för användning under kursen DV2: Algoritmer och problemlösning VT15.
+Det binära trädet är ursprungligen skrivet att av Johan Eliasson
+<johane@cs.umu.se> och är fritt för användning under kursen
+DV2: Algoritmer och problemlösning VT15.
 
-Ändringarna består i stora drag av att två funktioner har lagts till - en för att
-sätta ihop två träd till ett under en rot, och en för att från en ordnad tabell
-bygga ett Huffmanträd. Det kan vara värt att nämna att även fast vi har kallat
-datatypen för huff_tree så är det inte ett färdigt Huffmanträd förrän man har
-kört funktionen builfHuffTree.
+Ändringarna består i stora drag av att två funktioner har lagts till - en för
+att sätta ihop två träd till ett under en rot, och en för att från en ordnad
+array med pekare till träd bara bestående av rötter bygga ett Huffmanträd.
+Det kan vara värt att nämna att även fast vi har kallat datatypen för huff_tree
+så är det inte ett färdigt funktionellt Huffmanträd förrän man har kört
+funktionen buildfHuffTree.
 
 Vi har tagit bort insert-funktionerna eftersom det inte finns någon poäng
 med att själv sätta in noder i trädet.
@@ -144,7 +146,7 @@ Syfte: Kontrollera om det finns ett tecken i noden
 Parametrar: tree - trädet
             n - positionen för noden
 Returvärde: true om noden har ett tecken annars false
-Varning: Om tecknet är tecknet är null char så returneras false.
+Varning: Om tecknet är null char så returneras false
 */
 bool huffTree_hasCharacter(huff_tree *tree,huffTree_pos n);
 /*
@@ -152,7 +154,6 @@ Syfte: Kontrollera om det finns en vikt i noden
 Parametrar: tree - trädet
             n - positionen för noden
 Returvärde: true om noden har en vikt annars false
-
 */
 
 bool huffTree_hasWeight(huff_tree *tree,huffTree_pos n);
@@ -162,9 +163,9 @@ Parametrar: tree - trädet
             character - tecknet för noden
             weight - vikten för noden
             n - positionen för noden
-Kommentarer:
 */
-void huffTree_setValues(huff_tree *tree,data character, data weight,huffTree_pos n);
+void huffTree_setValues(huff_tree *tree,data character,
+                        data weight,huffTree_pos n);
 
 /*
 Syfte: Sätta ihop två träd under en gemensam rot.
@@ -175,17 +176,18 @@ Returvärde: Det sammansatta trädet
 huff_tree *huffTree_merge (huff_tree *treeLeft, huff_tree *treeRight);
 
 /*
-Syfte:  Att bygga ett huffmanträd efter frekvenserna i en sorterad tabell implementerad mha en 2d array.
-        Vi skapar en array av storleken size med ett träd på varje arrayplats och använder oss av huffTree_merge för att
-        sätta ihop de två träd som har minst vikt tills det bara finns ett träd kvar som returneras.
+Syfte:  Att bygga ett huffmanträd från en array med pekare till träd bestående
+        av endast en rot. Vi använder oss av huffTree_merge för att sätta ihop
+        de två träd som har minst vikt tills det bara finns ett träd kvar som
+        returneras.
 
-Parametrar: harr - en sorterad tabell på formen harr[][2], där harr[][0] består av tecken och harr[][1] är vikten.
-            size - storleken på första dimensionen i arrayen
+Parametrar: harr - array med pekare till huffmanträd
+            size - antalet träd som harr pekar på
 Returvärde: Det resulterande huffmanträdet
-Kommentarer: Tabellen måste vara sorterad med minsta vikt först
+Kommentarer: Träden i arrayen måste vara sorterad med minsta vikt först
 */
 
-huff_tree *buildHuffTree (int **harr, const int size);
+huff_tree *buildHuffTree (huff_tree **harr, const int size);
 
 /*
 Syfte: Ta bort en nod ur trädet
