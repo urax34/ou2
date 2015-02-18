@@ -1,5 +1,5 @@
 /*
-Datatyp:     huff_tree
+Datatyp:     bitset
 Författare:  Jon Leijon
 Användare:   dv14jln
 Datum:       16 feb 2015
