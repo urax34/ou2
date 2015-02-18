@@ -1,9 +1,22 @@
 /*
- * Copyright 2015 Johan Eliasson (johane@cs.umu.se). Tillåtelse ges för användning på kurserna
- * i Datastrukturer och algoritmer vid Umeå Universitet (inklusive DV1 och DV2). All annan användning kräver
- * författarens tillstånd.
- */
+Datatyp:     huff_tree
+Författare:  Jon Leijon
+Användare:   dv14jln
+Datum:       16 feb 2015
 
+Denna datatyp skapar bitset. Ett bitset är en mängd av bitar, som lagras
+i arrayen, och två ints som håller reda på hur många bitar som skrivits(length)
+och hur många bitar som har allokerats minne för(capacity).
+Bitset är ursprungligen skrivet av Johan Eliasson
+<johane@cs.umu.se> och är fritt för användning under kursen
+DV2: Algoritmer och problemlösning VT15.
+
+Den enda ändringen är funktionen bitsetFromFile, som kan användas för att
+återskapa en bitset som skrivits till fil. Det gör den genom att skapa en
+bitset, allokera minne i bitsetarrayen lika stort som filen, och använda
+fread för att skriva filen till bitsetarrayen.
+
+*/
 #ifndef __Huffman__BitSet__
 #define __Huffman__BitSet__
 

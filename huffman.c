@@ -7,17 +7,6 @@
 #include <unistd.h>
 #define ARR_SIZE 256
 
-typedef struct {
-    char character;
-    bitset *bit;
-} listElement;
-
-void exchange (int *x, int *y){
-    int temp;
-    temp = *x;
-    *x=*y;
-    *y=temp;
-}
 /*Hjälpfunktion för treesort*/
 void siftup (int i, int n, int **h){
     int j = (2 * i)+1;
@@ -160,7 +149,7 @@ void treeToArray(huff_tree *h, huffTree_pos p,bitset *b,void *l[]){
     }
 }
 /*
-    Denna funktion går igenom infilen karaktär för karaktär. Lägger till
+    encodeText går igenom infilen karaktär för karaktär. Lägger till
     varje karaktärs bitvärde som skapades i treeToArray till 'bitset *ut'.
     Skapar en char * av 'ut', och skriver den till fil.
     input= void *[] som innehåller bitsetpekare, filnamnspekare till infil
@@ -176,12 +165,11 @@ void encodeText(void *l[], char *utfil, char *infil) {
     unsigned char temp;
     bitset *ut= bitset_empty();
     unsigned long x=0;
-    FILE *utfilen = fopen(utfil, "w");
     FILE *infilen = fopen(infil, "r");
     int cntr=0;
     while( cntr < fp0size ){
-        temp = fgetc(infilen);
-        cntr++;
+    cntr++;
+    temp = fgetc(infilen);
         int lengd = bitset_size(l[temp]);
         for(int i=0;i<lengd;i++){
             bitset_setBitValue(ut,x,bitset_memberOf(l[temp],i));
@@ -203,6 +191,7 @@ void encodeText(void *l[], char *utfil, char *infil) {
                 bitset_setBitValue(ut,n,true);
             }
     char *bytearr = toByteArray(ut);
+    FILE *utfilen = fopen(utfil, "w");
     fwrite(bytearr,sizeof(char),bitset_size(ut)/8,utfilen);
     printf("%d bytes used in encoded form.\n",bitset_size(ut)/8);
     fclose(utfilen);
@@ -315,10 +304,6 @@ int main (int argc, char *argv[]) {
         free(h[j]);
     }
     free(h);
-    if(access(argv[3], F_OK) ==-1){
-        printf("no access to FILE1");
-        exit(0);
-    }
     if(encodeOrDecode) {
         huffTree_pos pos= huffTree_root(huff);
         void  *l= malloc(sizeof(void*)*ARR_SIZE);
