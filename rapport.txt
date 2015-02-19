@@ -5,10 +5,16 @@ Av Jon & Stefan
 
 Inledning:
 
-      Huffmanträdet och kodningen till bitar var det centrala i uppgiften, och där vi lagt fokus. Lite kringarbete med main-funktionens upplägg och filhantering har vi gjort, de valen gjordes för enkelhet och funktionalitet. 
-      Uppdelningen har varit att jon jobbat med bitset och Stefan skapat huffmanträdet.
+Huffmanträdet och kodningen till bitar var det centrala i uppgiften, och där vi lagt fokus. Lite kringarbete med main-funktionens upplägg och filhantering har vi gjort, de valen gjordes för enkelhet och funktionalitet. 
+
+Uppdelningen har varit att jon jobbat med bitset och Stefan skapat huffmanträdet.
 	
 Definition:
+
+
+Gjorda val:
+
+Först implementerade vi en tabell för att hålla char och bitset för kodning av en text. En enklare variant är att skapa en array av bitsets och låta char vara index till arrayen. 
 
 
 
@@ -21,13 +27,20 @@ Arbetet:
 	2.2 Gör frekvensanalys på frekvensfilen 
 	2.3 Använd Frekvensanalysen för att bygga upp ett huffmanträd
 	3. om encode:
-	3.1 Gör en tabell av Huffmanträdet med bitsets som representerar tecknets placering i huffmanträdet
-	3.2 Gå igenom infilen tecken för tecken och leta upp dem i tabellen, lägg till dess bitsets i en bitarray som ska skrivas till fil.
+	3.1 Gör en array av Huffmanträdet med bitsets som representerar tecknets placering i huffmanträdet
+	3.2 hämta bitset med tecknet som nyckel, lägg till i en bitarray som ska skrivas till fil.
 	3.3 Skriv ut storleken på den slutliga  bitarrayen och infilen.
 	4. om decode : 
 	4.1. Läs in infilen till ett bitset.
-	4.2. Traversera huffmanträdet med bitset enligt den förbestämda logiken.
-	4.3 Skriv resultatet till en fil. 
+	4.2. Traversera huffmanträdet med bitset och när ett löv nås, skriv ut tecknet till fil.
+
+Systemförklaring:
+1.
+Programmet ska initieras med en växel, och tre filadresser. Genom att main tar char *argv[] så får vi en sträng av hur programmet startades. Main tar också in int argc, som räknar antalet element som programmet startades med, inklusive programmets namn. Först kollas att antalet påståenden vid starten av programmet är korrekt, alltså 5 st.  Sedan görs en strncomp på element 2 ur dessa, som hamnar på plats 1 i chararrayen. motsvarar den "-encode" exakt kommer programmet endast att koda en fil, motsvarar den "-decode" exakt kommer programmet endast att avkoda en fil. Motsvarar den inget av valen så skrivs en text ut som förklarar hur programmet ska användas och sedan stängs programmet.
+
+Nästa steg är att kolla att de två första filsökvägarna faktiskt innehåller en fil. Adress tre är egal om den innehåller fil eller inte. Om någon av de två sökvägarna är oåtkomliga så skrivs ett felmeddeleande ut och programmet stängs.
+
+
 
 Förbjudna aktioner:
 
@@ -48,7 +61,7 @@ Storleksproblem + spekulation:
 Det kommer att finnas några begränsningar på vad som kan behandlas. Vi väljer att inte programmera för detta eftersom vårt mål är att koda ett par sidor text och sedan kunna avkoda det, och begränsningarna ger oss väldigt goda marginaler. Allt under en gigabyte i storleksbegränsning borde vara görbart.
 
 -decode
-i funktionen bitsetFromFile i användningen av fread  är Storleksbegränsningen åtminstonde unsigned int * byte, så några gigabyte. Detta kan kringås genom att läsa in bitsets en megabyte i taget.
+i funktionen bitsetFromFile i användningen av fread  är storleksbegränsningen åtminstonde unsigned int * byte, så några gigabyte. Detta kan kringås genom att läsa in bitsets en megabyte i taget.
 
 -encode
  när bitset skapas från infilen så används realloc, vilket lägger till en byte när det behövs för att skriva in en extra byte. Denna allokering görs 1024 ggr per kilobyte som skrivs, och kommer att flytta bitset-arrayen när nästa byte inte är ledigt minne. För stora filer är detta onödigt krävande. Det vore enkelt att allokera en megabyte i taget istället.
