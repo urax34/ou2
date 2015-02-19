@@ -62,20 +62,6 @@ För att plocka ut bitarna ifrån den kodade filen skapade vi funktionen bitsetF
 
 För varje karaktär i huffmanträdet så skapar vi en bitset som beskriver vägen till karaktären, och dessa lagras i en array av voidpekare till bitsets. Sättet vi valde för att koda infilen är att skapa en ny bitset, som vi skriver varje karaktärs bitset till. När texten är läst så letar vi upp EOT-tecknet '\4' och skriver in det. Har vi sedan bitar över på den sista byten så fyller vi ut med 1:or, för att släcka varningen i valgrind. För att respektera datatypens integritet så använder vi funktionerna och gör en bytearray av den bitset vi skapat, istället för att använde b->array direkt. 
 
-Storleksproblem + spekulation:
+Val av tabelltyp:
 
-Det kommer att finnas några begränsningar på vad som kan behandlas. Vi väljer att inte programmera för detta eftersom vårt mål är att koda ett par sidor text och sedan kunna avkoda det, och begränsningarna ger oss väldigt goda marginaler. Allt under en gigabyte i storleksbegränsning borde vara görbart.
-
--decode
-i funktionen bitsetFromFile i användningen av fread  är storleksbegränsningen åtminstonde unsigned int * byte, så några gigabyte. Detta kan kringås genom att läsa in bitsets en megabyte i taget.
-
--encode
- när bitset skapas från infilen så används realloc, vilket lägger till en byte när det behövs för att skriva in en extra byte. Denna allokering görs 1024 ggr per kilobyte som skrivs, och kommer att flytta bitset-arrayen när nästa byte inte är ledigt minne. För stora filer är detta onödigt krävande. Det vore enkelt att allokera en megabyte i taget istället.
-
--encode
-När bytearray skrivs till fil så används fwrite, som också är begränsad på unsigned int * byte. 
-
--encode
-Att gå igenom hela tabellen för varje tecken är onödigt vid större avkodningsprojekt, eftersom det finns ett begränsat antal tecken, så kan vi använda en array av pekare till bitsets för att avkoda, för varje tecken som läses in får vi en position i arrayen, som vi sedan tar bitset från och stoppar in i bitset som ska skrivas ut. 
-
-Sedan finns begränsningen när fel frekvensanalysfil skickas med en fil som ska avkodas. Eftersom vi är "lövkompletta", alltså vi kommer alltid att hamna i ett löv oavsett vilken väg vi tar, så kommer vi alltid att få ut en radda tecken i den avkodade filen. Det enda sättet att upptäcka en felaktig frekvensfil är om vi aldrig kommer till stopptecknet. Eller om vi kommer till stopptecknet innan bitset är inne på sista byten. 
+Först implementerade vi tabell med directed list, vilket fungerade bra då datatypen behöver en nyckel(karaktären) och ett värde(bitset) för kodning av en fil. Men eftersom vi har den exakta storleken på tabellen som avgränsas av hur många sätt en byte kan fyllas på, så kan en unsigned char(har endast positiva värden) vara nyckel i en array, och bitsetpekare eller frekvens är den positionens värde. Med en sådan implementation av typen tabell så behöver aldrig några sökningar göras vid kodning av en fil.
