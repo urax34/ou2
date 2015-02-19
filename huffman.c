@@ -1,3 +1,32 @@
+/*
+    Huffman.c
+    Kodar och avkodar textfiler med hjälp av Huffmanträd.
+    Programmet består av filerna
+    huffman.c
+    hufftree.h
+    hufftree.c
+    bitset.h
+    bitset.c
+
+    Skapad Av
+    Stefan Bränberg
+    dv14sbg &
+    Jon Leijon
+    dv14jln
+    2015-02-19
+    för
+    DV2 - Algoritmer och problemlösning
+
+    Input är:
+    En växel som väljer kodning eller avkodning
+    En filadress för frekvensanalys
+    En filadress som ska kodas eller avkodas
+    En filadress för output.
+
+    Output är:
+    En kodad eller avkodad fil.
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
