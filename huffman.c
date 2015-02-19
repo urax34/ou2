@@ -127,11 +127,11 @@ void readTextToArray (int **h, char *frekvensFil, const int size){
 */
 void treeToArray(huff_tree *h, huffTree_pos p,bitset *b,void *l[]){
     if(!huffTree_hasLeftChild(h,p) && !huffTree_hasRightChild(h,p)){
-        char qq = (char)(intptr_t)huffTree_inspectCharacter(h,p);
-        l[(unsigned char)qq]=b;
+        int qq = (int)(intptr_t)huffTree_inspectCharacter(h,p);
+        l[qq]=b;
         p = huffTree_deleteNode(h,p);
         while(!huffTree_hasRightChild(h,p) && !huffTree_hasLeftChild(h,p)
-              && p!=h->root) {
+        && p!=h->root) {
             p = huffTree_deleteNode(h,p);
         }
     }
@@ -170,11 +170,11 @@ void encodeText(void *l[], char *utfil, char *infil) {
     while( cntr < fp0size ){
     cntr++;
     temp = fgetc(infilen);
-        int lengd = bitset_size(l[temp]);
-        for(int i=0;i<lengd;i++){
-            bitset_setBitValue(ut,x,bitset_memberOf(l[temp],i));
-            x++;
-        }
+    int lengd = bitset_size(l[temp]);
+    for(int i=0;i<lengd;i++){
+        bitset_setBitValue(ut,x,bitset_memberOf(l[temp],i));
+        x++;
+    }
         if(temp==(int)'\4') {
             printf("EOT-character within the textfile.\n");
             exit(0);
