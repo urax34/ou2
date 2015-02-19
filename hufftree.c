@@ -1,9 +1,8 @@
 #include <stdlib.h>
-
 #include <stdio.h>
 #include <stdint.h>
 #include "hufftree.h"
-
+/*Creates empty tree*/
 huff_tree *huffTree_create() {
     huff_tree *tree=calloc(1,sizeof(huff_tree));
     tree->root=calloc(1,sizeof(node));
