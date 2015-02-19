@@ -14,9 +14,6 @@ Definition:
 
 Gjorda val:
 
-Först implementerade vi en tabell för att hålla char och bitset för kodning av en text. En enklare variant är att skapa en array av bitsets och låta char vara index till arrayen. 
-
-
 
 Arbetet:
 
@@ -28,8 +25,7 @@ Arbetet:
 	2.3 Använd Frekvensanalysen för att bygga upp ett huffmanträd
 	3. om encode:
 	3.1 Gör en array av Huffmanträdet med bitsets som representerar tecknets placering i huffmanträdet
-	3.2 hämta bitset med tecknet som nyckel, lägg till i en bitarray som ska skrivas till fil.
-	3.3 Skriv ut storleken på den slutliga  bitarrayen och infilen.
+	3.2 hämta tecken ur infilen, slå upp i arrayen med tecknet som nyckel, lägg till i en bitarray som ska skrivas till fil.
 	4. om decode : 
 	4.1. Läs in infilen till ett bitset.
 	4.2. Traversera huffmanträdet med bitset och när ett löv nås, skriv ut tecknet till fil.
@@ -40,7 +36,17 @@ Programmet ska initieras med en växel, och tre filadresser. Genom att main tar 
 
 Nästa steg är att kolla att de två första filsökvägarna faktiskt innehåller en fil. Adress tre är egal om den innehåller fil eller inte. Om någon av de två sökvägarna är oåtkomliga så skrivs ett felmeddeleande ut och programmet stängs.
 
+3.1
+treeToArray gör, som funktionsnamnet antyder, en array av huffmanträdet. Vi letar efter barnlösa noder i trädet, som alltså är löven.  Den går från vänster till höger i huffmanträdet, när den hittar ett löv så kopieras bitset-pekaren till arrayen av pekare på det index som unsigned char motsvarar. Annars så skriver funktionen true till bitset om den kan gå vänster eller false för höger till bitset, och åkallar sig själv i positionen till vänster alt. höger. När bitset kopierats till voidpekararrayen tas lövet bort, och då kan lövets förälder ha blivit ett löv, som också tas bort. Funktionsanropet fortsätter med ett nytt bitset tills endast roten av huffmanträdet kvarstår. 
 
+3.2
+encodeText tar emot en array med voidpekare(till bitsets) och två filnamn. Först använder vi fseek för att läsa infilens storlek, sedan skriver vi ut filstorleken till prompten. Filen öppnas igen, och läses med fgetc tills hela filen är läst.  För varje char som läses slås motsvarande bitset upp i vår voidpekar-array. Den bitsetarrayen kopieras steg för steg till slutet på den bitsetarray som heter 'uẗ́'. Efter att hela filen har lästs så innehåller 'ut' motsvarande bitsetarray för varje läst karaktär. Då skrivs bitsetarrayen för stopptecknet '/4' till 'ut'. Efter detta så tar vi 8 minus resten från bitlängden på 'ut' för att få fram antalet oskrivna bitar i arrayen. Vi fyller dessa oskrivna bitar med 1or, endast som en kosmetisk åtgärd. Det släcker felet med uninitialized values i valgrind, och det kostar nästan inget att göra. Slutsteget är att kopiera chararrayen från bitset 'ut' till en annan chararray som kallas bytearr, och den skrivs till utfilen med fwrite. Sedan skrivs bitlängden på 'ut'/8 till prompten, det är hur många bytes som skrivits till utfilen.  
+
+4.1 
+För avkodning så kopieras först den kodade filen till en bitset i bitsetFromFile. Det allokeras minne för filens storlek, och sedan kopieras filen till det minnet. 
+
+4.2
+I encodeText så använder vi en räknare som räknar hur många bitar som lästs, sedan används varje läst bit som ett steg i huffmanträdet. När ett löv nåtts så skrivs det till fil, och nästa bit börjar ifrån roten på trädet. 
 
 Förbjudna aktioner:
 
