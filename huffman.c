@@ -31,12 +31,12 @@ void siftup (int i, int n, int **h){
 
 }
 /*  Använder en treesort-algoritm för att sortera en tabell implementerad med
-    hjälp av en 2d-array, där h[][0] = nyckeln (ett ascii-tecken) och h[][1]
-    är frekvensen som vi sorterar efter. Minsta värdet placeras först.
+    hjälp av en 2d-array , där h[][0] = nyckeln och h[][1] är frekvensen som vi
+    sorterar efter. Minsta värdet placeras först.
     Input   - 2d array gjord av pekare till pekare där andra dimensionen är 2.
             - Antal platser i första dimensionen
 */
-void treesortHuffArr(int **h, int n){
+void treesort2dArr(int **h, int n){
     int i;
     int x=1;
     int temp;
@@ -296,9 +296,9 @@ int main (int argc, char *argv[]) {
         h[i] = (int*)malloc(sizeof(int)*2);
     }
     readTextToArray(h,argv[2],ARR_SIZE);
-    treesortHuffArr(h,ARR_SIZE);
+    treesort2dArr(h,ARR_SIZE);
     huff_tree **huffArr=buildForest(h,ARR_SIZE);
-    huff_tree *huff = buildHuffTree(huffArr,ARR_SIZE);
+    huff_tree *huff = huffTree_build(huffArr,ARR_SIZE);
     free(huffArr);
     for(int j=0;j<ARR_SIZE;j++) {
         free(h[j]);

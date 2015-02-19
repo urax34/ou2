@@ -11,13 +11,15 @@ DV2: Algoritmer och problemlösning VT15.
 
 Ändringarna består i stora drag av att två funktioner har lagts till - en för
 att sätta ihop två träd till ett under en rot, och en för att från en ordnad
-array med pekare till träd bara bestående av rötter bygga ett Huffmanträd.
+array med pekare till träd bara bestående av rötter bygga ett huffmanträd.
 Det kan vara värt att nämna att även fast vi har kallat datatypen för huff_tree
-så är det inte ett färdigt funktionellt Huffmanträd förrän man har kört
+så är det inte ett färdigt funktionellt huffmanträd förrän man har kört
 funktionen buildfHuffTree.
 
 Vi har tagit bort insert-funktionerna eftersom det inte finns någon poäng
-med att själv sätta in noder i trädet.
+med att själv sätta in noder i trädet, tanken är att man bara ska kunna skapa
+träd med endast en rot och sedan bygga ihop flera sådana till ett fungerande
+huffmanträd.
 
 */
 
@@ -182,12 +184,12 @@ Syfte:  Att bygga ett huffmanträd från en array med pekare till träd beståen
         returneras.
 
 Parametrar: harr - array med pekare till huffmanträd
-            size - antalet träd som harr pekar på
+            arraySize - antalet träd som harr pekar på
 Returvärde: Det resulterande huffmanträdet
 Kommentarer: Träden i arrayen måste vara sorterad med minsta vikt först
 */
 
-huff_tree *buildHuffTree (huff_tree **harr, const int size);
+huff_tree *huffTree_build (huff_tree **harr, const int arraySize);
 
 /*
 Syfte: Ta bort en nod ur trädet

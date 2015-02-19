@@ -87,16 +87,19 @@ huff_tree *huffTree_merge (huff_tree *treeLeft, huff_tree *treeRight){
     return newTree;
 }
 
-huff_tree *buildHuffTree (huff_tree **huffArr, const int size){
+huff_tree *huffTree_build (huff_tree **huffArr, const int arraySize){
 
     int n = 1;
-    while (n<size){
+    while (n<arraySize){
         huffArr[n]=huffTree_merge(huffArr[n], huffArr[n-1]);
         int t = n;
         int j = n+1;
-        if (j<size){
-            while (j<size && (int)(intptr_t)huffArr[t]->root->weight
-                   >= (int)(intptr_t)huffArr[j]->root->weight){
+        if (j<arraySize){
+            while (j<arraySize &&
+                   (int)(intptr_t)huffTree_inspectWeight(huffArr[t],
+                    huffTree_root(huffArr[t])) >=
+                   (int)(intptr_t)huffTree_inspectWeight(huffArr[j],
+                    huffTree_root(huffArr[j]))){
                 huff_tree *tempHuff;
                 tempHuff=huffArr[t];
                 huffArr[t]=huffArr[j];
