@@ -58,9 +58,9 @@ Kodning av bitsets:
 
 Bitset var en nästan komplett lösning på kodningsproblemet ifrån huffman-trädet. Det som saknas är ett sätt att plocka ut bitarna från en kodad fil. En mindre irritation är att när man vill skriva icke-initierade värden till en fil så ges det en varning i valgrind. 
 
-För att plocka ut bitarna ifrån den kodade filen använder vi funktionen bitsetFromFile. Den läser in storleken på filen, skapar en bitset*, allokerar minne för storleken på den kodade filen, och överför den kodade filen till bitset* med fread. Sedan skickar vi tillbaka till pekaren, och har nu gjort kodade filen till en bitset vi kan läsa med funktionerna som finns i bitset.c . 
+För att plocka ut bitarna ifrån den kodade filen skapade vi funktionen bitsetFromFile. Den läser in storleken på filen, skapar en bitset*, allokerar minne för storleken på den kodade filen, och överför den kodade filen till bitsetarrayen med fread. Sedan skickar vi tillbaka pekaren, och har nu gjort kodade filen till en bitset vi kan läsa med funktionerna som finns i bitset.c . 
 
-Sättet vi valde för att koda infilen är att skapa en ny bitset, som vi skriver varje karaktärs bitset till. När texten är läst så letar vi upp EOT-tecknet '\4' och skriver in det. Har vi sedan bitar över på den sista byten så fyller vi ut med 1:or, för att släcka varningen i valgrind. 
+För varje karaktär i huffmanträdet så skapar vi en bitset som beskriver vägen till karaktären, och dessa lagras i en array av voidpekare till bitsets. Sättet vi valde för att koda infilen är att skapa en ny bitset, som vi skriver varje karaktärs bitset till. När texten är läst så letar vi upp EOT-tecknet '\4' och skriver in det. Har vi sedan bitar över på den sista byten så fyller vi ut med 1:or, för att släcka varningen i valgrind. För att respektera datatypens integritet så använder vi funktionerna och gör en bytearray av den bitset vi skapat, istället för att använde b->array direkt. 
 
 Storleksproblem + spekulation:
 
